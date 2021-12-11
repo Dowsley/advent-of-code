@@ -6,78 +6,69 @@ def get_input(filename):
         ))
         return parsed
 
-def adj_finder(matrix, position):
-    adj = []
-    for dx in range(-1, 2):
-        for dy in range(-1, 2):
-            rangeX = range(0, matrix.shape[0])  # X bounds
-            rangeY = range(0, matrix.shape[1])  # Y bounds
+def print_matrix(inputs):
+    for row in inputs:
+        print(row)
+    print("\n")
 
-            (newX, newY) = (position[0]+dx, position[1]+dy)  # adjacent cell
+def flash(inputs, x, y, has_flashed):
+    if x+1 <= len(inputs[0])-1:
+        flash_aux(inputs, x+1, y, has_flashed)
+    if x-1 >= 0:
+        flash_aux(inputs, x-1, y, has_flashed)
+    if y+1 <= len(inputs)-1:
+        flash_aux(inputs, x, y+1, has_flashed)
+    if y-1 >= 0:
+        flash_aux(inputs, x, y-1, has_flashed)
+    if x+1 <= len(inputs[0])-1 and y+1 <= len(inputs)-1:
+        flash_aux(inputs, x+1, y+1, has_flashed)
+    if x-1 >= 0 and y-1 >= 0:
+        flash_aux(inputs, x-1, y-1, has_flashed)
+    if x+1 <= len(inputs[0])-1 and y-1 >= 0:
+        flash_aux(inputs, x+1, y-1, has_flashed)
+    if x-1 >= 0 and y+1 <= len(inputs)-1:
+        flash_aux(inputs, x-1, y+1, has_flashed)
 
-            if (newX in rangeX) and (newY in rangeY) and (dx, dy) != (0, 0):
-                adj.append((newX, newY))
+def flash_aux(matrix, x, y, has_flashed):
+    if matrix[x][y] != "." and not has_flashed.get(f"{x}{y}"):
+        matrix[x][y] += 1
 
-    return adj
+def compute_flashes(old):
+    aux = [[n+1 for n in line] for line in old]
 
-def increase(inputs):
-    has_flashed = [[False for i in line] for line in inputs]
-    for y in range(len(has_flashed)):
-        for x in range(len(has_flashed[y])):
-            has_flashed[x][y] = False
+    has_flashed = {}
 
-    # Increase
-    for y in range(len(inputs)):
-        for x in range(len(inputs[y])):
-            inputs[x][y] += 1
+    flashes = 0
+    prev_flashes = -1
+    while(flashes > prev_flashes):
+        prev_flashes = flashes
+        new = [["." if n > 9 else n for n in line] for line in aux]
+        for y in range(len(old)):
+            for x in range(len(old[y])):
+                if new[x][y] == ".":
+                    flash(new, x, y, has_flashed)
+                    flashes += 1
+        # Clear "."
+        for y in range(len(old)):
+            for x in range(len(old[y])):
+                if new[x][y] == ".":
+                    new[x][y] = 0
+                    has_flashed[f"{x}{y}"] = True
+        aux = [line.copy() for line in new]
 
-    # Find first to flash
-    flash_amount = 0
-    has_a_flash = True
-    while(has_a_flash):
-        has_a_flash = False
-        for y in range(len(inputs)):
-            for x in range(len(inputs[y])):
-                if inputs[x][y] > 9 and not has_flashed[x][y]:
-                    has_a_flash = True
-                    flash_amount += 1
-                    inputs[x][y] = 0
-                    if x+1 <= len(inputs[0])-1:
-                        inputs[x+1][y] += 1
-                    if x-1 >= 0:
-                        inputs[x-1][y] += 1
-                    if y+1 <= len(inputs)-1:
-                        inputs[x][y+1] += 1
-                    if y-1 >= 0:
-                        inputs[x][y-1] += 1
-                    if x+1 <= len(inputs[0])-1 and y+1 <= len(inputs)-1:
-                        inputs[x+1][y+1] += 1
-                    if x-1 >= 0 and y-1 >= 0:
-                        inputs[x-1][y-1] += 1
-                    if x+1 <= len(inputs[0])-1 and y-1 >= 0:
-                        inputs[x+1][y-1] += 1
-                    if x-1 >= 0 and y+1 <= len(inputs)-1:
-                        inputs[x-1][y+1] += 1
-        return flash_amount
-
-def adj_finder(matrix, position):
-    adj = []
-    for dx in range(-1, 2):
-        for dy in range(-1, 2):
-            rangeX = range(0, matrix.shape[0])  # X bounds
-            rangeY = range(0, matrix.shape[1])  # Y bounds
-
-            (newX, newY) = (position[0]+dx, position[1]+dy)  # adjacent cell
-
-            if (newX in rangeX) and (newY in rangeY) and (dx, dy) != (0, 0):
-                adj.append((newX, newY))
-
-    return adj
+    return (new, flashes)
 
 def solve_part_1(inputs, steps):
+    print("Before any")
+    print_matrix(inputs)
+
     n = 0
     for i in range(steps):
-        n += increase(inputs)
+        inputs, new_n = compute_flashes(inputs)
+        n += new_n
+
+        print(f"After {i+1}")
+        print_matrix(inputs)
     return n
 
 def solve_part_2(inputs):
@@ -86,7 +77,7 @@ def solve_part_2(inputs):
 if __name__ == '__main__':
     inputs = get_input('input/day_11.txt')
 
-    answer1 = solve_part_1(inputs, 10)
+    answer1 = solve_part_1(inputs, 100)
     print(f"Part 1: {answer1}")
 
     answer2 = solve_part_2(inputs)
