@@ -59,20 +59,20 @@ def compute_flashes(old):
     return (new, flashes)
 
 def solve_part_1(inputs, steps):
-    print("Before any")
-    print_matrix(inputs)
-
     n = 0
     for i in range(steps):
         inputs, new_n = compute_flashes(inputs)
         n += new_n
-
-        print(f"After {i+1}")
-        print_matrix(inputs)
     return n
 
 def solve_part_2(inputs):
-    pass
+    total_elements = len(inputs) * len(inputs[0])
+    i = 1
+    while(True):
+        inputs, new_n = compute_flashes(inputs)
+        if total_elements == new_n:
+            return i
+        i += 1
 
 if __name__ == '__main__':
     inputs = get_input('input/day_11.txt')
