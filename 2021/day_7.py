@@ -36,12 +36,11 @@ def solve_2(inputs):
             least_fuel_amount = total
             least_fuel_pos = i
     return least_fuel_amount
-sad
 
 if __name__ == '__main__':
     inputs = get_input('input/day_7.txt')
     answer1 = solve_1(inputs)
-s    print(f"Part 1: {answer1}")s
+    print(f"Part 1: {answer1}")
 
     inputs = get_input('input/day_7.txt')
     answer2 = solve_2(inputs)
